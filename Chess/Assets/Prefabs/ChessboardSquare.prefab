@@ -121,5 +121,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f3adde8d50e3b7a4c9cdb2a91ac8fe9b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  whiteMat: {fileID: 2100000, guid: 8962a86b985f13a4f9360cc558b12d39, type: 2}
-  blackMat: {fileID: 2100000, guid: 696d1cd8757f0a64ab11a3eb1e83cd96, type: 2}
+  matIdleWhite: {fileID: 2100000, guid: 8962a86b985f13a4f9360cc558b12d39, type: 2}
+  matIdleBlack: {fileID: 2100000, guid: 696d1cd8757f0a64ab11a3eb1e83cd96, type: 2}
+  matHighlightedWhite: {fileID: 2100000, guid: 8663b9efa002b334a88fa9b5392d9141, type: 2}
+  matHighlightedBlack: {fileID: 2100000, guid: 6c586a3771bcb1f4a835c0382f05c2c1, type: 2}
+  matSelectedWhite: {fileID: 2100000, guid: fa36b32f3247a8d479f6548308ff240c, type: 2}
+  matSelectedBlack: {fileID: 2100000, guid: 579082fba73bd2b4eba4994a00c386d8, type: 2}

@@ -9,15 +9,29 @@ namespace Chess.Gameplay
         Action<Spot> SquareSelected;
 
         [SerializeField]
-        private Material whiteMat;
+        private Material matIdleWhite;
         [SerializeField]
-        private Material blackMat;
+        private Material matIdleBlack;
+
+        [SerializeField]
+        private Material matHighlightedWhite;
+        [SerializeField]
+        private Material matHighlightedBlack;
+
+        [SerializeField]
+        private Material matSelectedWhite;
+        [SerializeField]
+        private Material matSelectedBlack;
 
         private Spot spot;
+        private bool isWhite;
+
+        private MeshRenderer meshRenderer;
 
         public void Init(Spot spot, bool isWhite)
         {
             this.spot = spot;
+            this.isWhite = isWhite;
             name = spot.notation;
 
             //Setting position
@@ -26,7 +40,22 @@ namespace Chess.Gameplay
             Vector3 pos = a1Pos + new Vector3(spot.file - 1, 0, spot.rank - 1) * size;
             transform.position = pos;
 
-            GetComponent<MeshRenderer>().material = isWhite? whiteMat : blackMat;
+            meshRenderer = GetComponent<MeshRenderer>();
+            meshRenderer.material = isWhite ? matIdleWhite : matIdleBlack;
+        }
+
+        public void Highlight()
+        {
+            meshRenderer.material = isWhite ? matHighlightedWhite : matHighlightedBlack;
+        }
+        public void Select()
+        {
+            meshRenderer.material = isWhite ? matSelectedWhite : matSelectedBlack;
+
+        }
+        public void Deselect()
+        {
+            meshRenderer.material = isWhite ? matIdleWhite : matIdleBlack;
         }
     }
 }
