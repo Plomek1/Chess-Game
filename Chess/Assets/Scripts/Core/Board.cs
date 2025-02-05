@@ -1,20 +1,25 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 
 namespace Chess.Core
 {
-    public class Board : MonoBehaviour
+    public class Board
     {
-        // Start is called once before the first execution of Update after the MonoBehaviour is created
-        void Start()
+        private Dictionary<Spot, Piece> pieces;
+        
+        public Board()
         {
-            Spot spot1 = new Spot(3, 2);
-            Spot spot2 = new Spot("h6");
-            Spot spot3 = new Spot("1");
-
-            Debug.Log(spot1);
-            Debug.Log(spot2);
-            Debug.Log(spot3);
+            pieces = new Dictionary<Spot, Piece>(64);
+            for (int file = 1; file <= 8; file++)
+            {
+                for (int rank = 1; rank <= 8; rank++)
+                {
+                    pieces.Add(new Spot(file, rank), new Piece());
+                }
+            }
         }
+
+        public Piece GetPiece(Spot spot) => pieces[spot];
     }
 }
