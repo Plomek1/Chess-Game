@@ -24,7 +24,7 @@ namespace Chess.Gameplay
                     {
                         Debug.Log("move");
                     }
-                    Debug.Log("aha");
+
                     DeselectSquare();
                 }
 

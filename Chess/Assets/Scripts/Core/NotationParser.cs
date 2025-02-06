@@ -1,39 +1,40 @@
-using UnityEngine;
+using System;
+using System.Collections.Generic;
 
 namespace Chess.Core
 {
     public static class NotationParser
     {
-        public static bool NotationToCoordinates(string notation, out int file, out int rank)
+        public static bool NotationToCoordinates(string notation, out int rank, out int file)
         {
             if (notation.Length != 2)
             {
-                file = 1;
                 rank = 1;
+                file = 1;
                 return false;
             }
             
-            int fileLocal = notation[0] % 32;
-            int rankLocal = notation[1] - '0';
+            int rankLocal = notation[0] % 32;
+            int fileLocal = notation[1] - '0';
 
-            if (ValidateCoordinates(fileLocal, rankLocal))
+            if (ValidateCoordinates(rankLocal, fileLocal))
             {
-                file = fileLocal;
                 rank = rankLocal;
+                file = fileLocal;
                 return true;
             }
 
-            file = 1;
             rank = 1;
+            file = 1;
             return false;
         }
 
-        public static bool CoordinatesToNotation(int file, int rank, out string notation)
+        public static bool CoordinatesToNotation(int rank, int file, out string notation)
         {
-            if (ValidateCoordinates(file, rank))
+            if (ValidateCoordinates(rank, file))
             {
-                char fileChar = (char)('a' + (file - 1));
-                notation = fileChar + rank.ToString();
+                char rankChar = (char)('a' + (rank - 1));
+                notation = rankChar + file.ToString();
                 return true;
             }
 
@@ -41,7 +42,27 @@ namespace Chess.Core
             return false;
         }
 
-        public static bool ValidateCoordinates(int file, int rank) => file >= 1 && file <= 8 && rank >= 1 && rank <= 8;
+        public static Piece NotationToPiece(char pieceChar)
+        {
+            pieceChar = char.ToUpper(pieceChar);
+            if (pieceTypes.TryGetValue(pieceChar, out Type pieceType))
+                return (Piece)Activator.CreateInstance(pieceType);
+            return null;
+        }
+
+        public static bool ValidateCoordinates(int rank, int file) => rank >= 1 && rank <= 8 && file >= 1 && file <= 8;
+
+        private static Dictionary<char, Type> pieceTypes = new Dictionary<char, Type> 
+        {
+            { 'K', typeof(King) },
+            { 'Q', typeof(Queen) },
+            { 'R', typeof(Rook) },
+            { 'B', typeof(Bishop) },
+            { 'N', typeof(Knight) },
+            { 'P', typeof(Pawn) },
+        };
+            
+
     }
 }
 

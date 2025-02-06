@@ -6,7 +6,7 @@ namespace Chess.Gameplay
 {
     public class PlayerBoardSquare : MonoBehaviour
     {
-        Action<Spot> SquareSelected;
+        Action<Square> SquareSelected;
 
         [SerializeField]
         private Material matIdleWhite;
@@ -23,21 +23,21 @@ namespace Chess.Gameplay
         [SerializeField]
         private Material matSelectedBlack;
 
-        private Spot spot;
+        private Square square;
         private bool isWhite;
 
         private MeshRenderer meshRenderer;
 
-        public void Init(Spot spot, bool isWhite)
+        public void Init(Square square, bool isWhite)
         {
-            this.spot = spot;
+            this.square = square;
             this.isWhite = isWhite;
-            name = spot.notation;
+            name = square.notation;
 
             //Setting position
             float size = transform.localScale.x;
             Vector3 a1Pos = -new Vector3(size * 3.5f, 0, size * 3.5f);
-            Vector3 pos = a1Pos + new Vector3(spot.file - 1, 0, spot.rank - 1) * size;
+            Vector3 pos = a1Pos + new Vector3(square.rank - 1, 0, square.file - 1) * size;
             transform.position = pos;
 
             meshRenderer = GetComponent<MeshRenderer>();
@@ -47,6 +47,7 @@ namespace Chess.Gameplay
         public void Highlight()
         {
             meshRenderer.material = isWhite ? matHighlightedWhite : matHighlightedBlack;
+            Debug.Log(square.notation);
         }
         public void Select()
         {
