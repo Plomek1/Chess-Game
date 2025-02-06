@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -7,9 +8,10 @@ namespace Chess.Core
 {
     public class Board
     {
-        private const string FEN_DEFAULT = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+        public Action PositionSet;
+        
+        public Dictionary<Square, Piece> pieces { get; private set; }
 
-        private Dictionary<Square, Piece> pieces;
         
         public Board()
         {
@@ -17,10 +19,7 @@ namespace Chess.Core
             for (int i = 1;  i <= 64; i++) 
                 pieces.Add(new Square(i), null);
 
-            LoadPositionFromFEN(FEN_DEFAULT);
         }
-
-        public Piece GetPiece(Square spot) => pieces[spot];
 
         public void LoadPositionFromFEN(string fen)
         {
@@ -55,11 +54,12 @@ namespace Chess.Core
                     Piece piece = NotationParser.NotationToPiece(pieceChar);
                     piece.Init(this, pieceWhite, new Square(rank, file));
                     pieces[new Square(rank, file)] = piece;
-                    Debug.Log($"Created {pieceChar} at: {new Square(rank, file).notation}");
 
                     rank++;
                 }
             }
+
+            PositionSet?.Invoke();
         }
     }
 }

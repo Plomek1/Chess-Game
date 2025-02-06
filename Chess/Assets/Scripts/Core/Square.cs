@@ -19,7 +19,6 @@ namespace Chess.Core
                 this.rank = rank;
                 this.file = file;
                 this.notation = notation;
-
                 return;
             }
 

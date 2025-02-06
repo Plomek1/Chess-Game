@@ -1,6 +1,6 @@
 namespace Chess.Core
 {
-    public class Piece
+    public abstract class Piece
     {
         public bool isWhite {  get; private set; }
 

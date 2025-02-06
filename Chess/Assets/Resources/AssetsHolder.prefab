@@ -1,0 +1,58 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &487565629350762935
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 804993947922590196}
+  - component: {fileID: 3409972937004398061}
+  m_Layer: 0
+  m_Name: AssetsHolder
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &804993947922590196
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 487565629350762935}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3409972937004398061
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 487565629350762935}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 21e716445b312144588ac30a5d7a8d42, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pref_King: {fileID: 7500957534166806125, guid: 4225619d0da32a243bb63a8bbec3a44a, type: 3}
+  pref_Queen: {fileID: 7975819762827749644, guid: 12f659b65354e6a43a67942529827662, type: 3}
+  pref_Rook: {fileID: 3269549805538427967, guid: e5908d05e7dde3446b87a92f4f38653b, type: 3}
+  pref_Bishop: {fileID: 1665618619496702475, guid: 99b25d73b5d4a704bab19887d2f9c945, type: 3}
+  pref_Knight: {fileID: 611902345445998918, guid: 9fe1d5cd876fbce409a66c24ddc109b5, type: 3}
+  pref_Pawn: {fileID: 5703078197057979621, guid: b722381243bba9243b2cb41c9eccba5c, type: 3}
+  mat_WhiteSquareIdle: {fileID: 2100000, guid: 8962a86b985f13a4f9360cc558b12d39, type: 2}
+  mat_WhiteSquareHighlighted: {fileID: 2100000, guid: 8663b9efa002b334a88fa9b5392d9141, type: 2}
+  mat_WhiteSquareSelected: {fileID: 2100000, guid: fa36b32f3247a8d479f6548308ff240c, type: 2}
+  mat_BlackSquareIdle: {fileID: 2100000, guid: 696d1cd8757f0a64ab11a3eb1e83cd96, type: 2}
+  mat_BlackSquareHighlighted: {fileID: 2100000, guid: 6c586a3771bcb1f4a835c0382f05c2c1, type: 2}
+  mat_BlackSquareSelected: {fileID: 2100000, guid: 579082fba73bd2b4eba4994a00c386d8, type: 2}

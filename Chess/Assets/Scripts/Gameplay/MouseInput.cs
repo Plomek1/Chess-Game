@@ -4,9 +4,9 @@ namespace Chess.Gameplay
 {
     public class MouseInput : MonoBehaviour
     {
-        private PlayerBoardSquare highlightedSquare;
-        private PlayerBoardSquare selectedSquare;
-        private PlayerBoardSquare hoveredSquare;
+        private GameplaySquare highlightedSquare;
+        private GameplaySquare selectedSquare;
+        private GameplaySquare hoveredSquare;
 
         private Transform lastHit;
 
@@ -52,7 +52,7 @@ namespace Chess.Gameplay
         {
             if (!selectedSquare) return;
 
-            if (hoveredSquare == selectedSquare) selectedSquare.Highlight();
+            if (hoveredSquare == selectedSquare) HighlightHoveredSquare();
             else selectedSquare.Deselect();
 
             selectedSquare = null;
@@ -61,7 +61,7 @@ namespace Chess.Gameplay
         private void RayForSquare()
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            if (Physics.Raycast(ray, out RaycastHit hitInfo) && hitInfo.transform.TryGetComponent(out PlayerBoardSquare square))
+            if (Physics.Raycast(ray, out RaycastHit hitInfo) && hitInfo.transform.TryGetComponent(out GameplaySquare square))
             {
                 if (hitInfo.transform != lastHit)
                 {
