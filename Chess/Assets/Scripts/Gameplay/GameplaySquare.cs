@@ -6,24 +6,23 @@ namespace Chess.Gameplay
 {
     public class GameplaySquare : MonoBehaviour
     {
-        Action<Square> SquareSelected;
-
-        private Square square;
-        private bool isWhite;
+        public SquareState squareState {  get; private set; }
+        public Spot spot {  get; private set; }
+        public bool isWhite { get; private set; }
 
         private GameplayPiece gameplayPiece;
         private MeshRenderer meshRenderer;
 
-        public void Init(Square square, bool isWhite)
+        public void Init(Spot spot, bool isWhite)
         {
-            this.square = square;
+            this.spot = spot;
             this.isWhite = isWhite;
-            name = square.notation;
+            name = spot.notation;
 
             //Setting position
             float size = transform.localScale.x;
             Vector3 a1Pos = -new Vector3(size * 3.5f, 0, size * 3.5f);
-            Vector3 pos = a1Pos + new Vector3(square.rank - 1, 0, square.file - 1) * size;
+            Vector3 pos = a1Pos + new Vector3(spot.rank - 1, 0, spot.file - 1) * size;
             transform.position = pos;
 
             meshRenderer = GetComponent<MeshRenderer>();
@@ -50,17 +49,33 @@ namespace Chess.Gameplay
         
         public void Deselect()
         {
+            squareState = SquareState.IDLE;
             meshRenderer.material = isWhite ? Assets.Instance.mat_WhiteSquareIdle : Assets.Instance.mat_BlackSquareIdle;
         }
 
         public void Highlight()
         {
+            squareState = SquareState.HIGHLIGHTED;
             meshRenderer.material = isWhite ? Assets.Instance.mat_WhiteSquareHighlighted : Assets.Instance.mat_BlackSquareHighlighted;
         }
 
         public void Select()
         {
+            if (!gameplayPiece)
+            {
+                Debug.Log($"Tried to select empty square at: {spot.notation}");
+                return;
+            }
+
+            squareState = SquareState.SELECTED;
             meshRenderer.material = isWhite ? Assets.Instance.mat_WhiteSquareSelected : Assets.Instance.mat_BlackSquareSelected;
         }
+    }
+
+    public enum SquareState
+    {
+        IDLE,
+        HIGHLIGHTED,
+        SELECTED
     }
 }

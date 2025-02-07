@@ -6,13 +6,13 @@ namespace Chess.Core
 
         private Board board;
 
-        private Square square;
+        private Spot spot;
 
-        public void Init(Board board, bool isWhite, Square square)
+        public void Init(Board board, bool isWhite, Spot spot)
         {
             this.board = board;
             this.isWhite = isWhite;
-            this.square = square;
+            this.spot = spot;
         }
     }
 }

@@ -3,13 +3,13 @@ using UnityEngine;
 
 namespace Chess.Core
 {
-    public struct Square
+    public struct Spot
     {
         public int rank { get; private set; }
         public int file { get; private set; }
         public string notation { get; private set; }
 
-        public Square(int index)
+        public Spot(int index)
         {
             int rank = (index-1) % 8 + 1;
             int file = (index-1) / 8 + 1;
@@ -25,10 +25,10 @@ namespace Chess.Core
             this.rank = 1;
             this.file = 1;
             this.notation = "a1";
-            Debug.LogWarning($"Created square with invalid index: {index}");
+            Debug.LogWarning($"Created spot with invalid index: {index}");
         }
 
-        public Square(int rank, int file)
+        public Spot(int rank, int file)
         {
             if(NotationParser.CoordinatesToNotation(rank, file, out string notation))
             {
@@ -41,10 +41,10 @@ namespace Chess.Core
             this.rank = 1;
             this.file = 1;
             this.notation = "a1";
-            Debug.LogWarning($"Created square with invalid coordinates: ({rank}, {file})");
+            Debug.LogWarning($"Created spot with invalid coordinates: ({rank}, {file})");
         }
 
-        public Square(string notation)
+        public Spot(string notation)
         {
             if(NotationParser.NotationToCoordinates(notation, out int rank, out int file))
             {
@@ -57,7 +57,7 @@ namespace Chess.Core
             this.rank = 1;
             this.file = 1;
             this.notation = "a1";
-            Debug.LogWarning($"Created square with invalid notation: {notation}");
+            Debug.LogWarning($"Created spot with invalid notation: {notation}");
         }
 
         public override string ToString() { return notation; }

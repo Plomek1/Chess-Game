@@ -10,20 +10,21 @@ namespace Chess.Core
     {
         public Action PositionSet;
         
-        public Dictionary<Square, Piece> pieces { get; private set; }
+        public bool whiteOnMove { get; private set; }
+        public Dictionary<Spot, Piece> pieces { get; private set; }
 
         
         public Board()
         {
-            pieces = new Dictionary<Square, Piece>(64);
+            pieces = new Dictionary<Spot, Piece>(64);
             for (int i = 1;  i <= 64; i++) 
-                pieces.Add(new Square(i), null);
+                pieces.Add(new Spot(i), null);
 
         }
 
         public void LoadPositionFromFEN(string fen)
         {
-            pieces.Keys.ToList().ForEach(square => pieces[square] = null);
+            pieces.Keys.ToList().ForEach(square => pieces[square] = null); //Clearing position
 
             /*
                 0-7: Piece placement
@@ -35,6 +36,14 @@ namespace Chess.Core
             */ 
             string[] arguments = fen.Split('/', ' ');
 
+            LoadPieces(arguments);
+            whiteOnMove = arguments[8] == "w";
+            Debug.Log(whiteOnMove);
+            PositionSet?.Invoke();
+        }
+
+        private void LoadPieces(string[] arguments )
+        {
             for (int file = 1; file <= 8; file++)
             {
                 string filePieces = arguments[8 - file];
@@ -52,14 +61,12 @@ namespace Chess.Core
                     bool pieceWhite = pieceChar == char.ToUpper(pieceChar);
 
                     Piece piece = NotationParser.NotationToPiece(pieceChar);
-                    piece.Init(this, pieceWhite, new Square(rank, file));
-                    pieces[new Square(rank, file)] = piece;
+                    piece.Init(this, pieceWhite, new Spot(rank, file));
+                    pieces[new Spot(rank, file)] = piece;
 
                     rank++;
                 }
             }
-
-            PositionSet?.Invoke();
         }
     }
 }
