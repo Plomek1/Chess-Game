@@ -15,24 +15,114 @@ namespace Chess.Gameplay
         
         private Board board;
         private Dictionary<Spot, GameplaySquare> squares;
+        private List<GameplaySquare> markedSquares;
 
         private GameplaySquare selectedSquare;
 
         private void Start()
         {
+            squares = new Dictionary<Spot, GameplaySquare>(64);
+            markedSquares = new List<GameplaySquare>();
             SpawnBoard();
+        }
+
+
+
+        public void ClickSquare(GameplaySquare square)
+        {
+            Piece targetSquarePiece = board.pieces[square.spot];
+
+            if (selectedSquare)
+            {
+                //Make move
+                if (markedSquares.Contains(square))
+                {
+                    board.MakeMove(new Move(selectedSquare.spot, square.spot));
+                    DeselectSquare();
+                    return;
+                }
+                
+                //Deselect if clicked again on the same square
+                if(square == selectedSquare)
+                {
+                    DeselectSquare();
+                    return;
+                }
+
+                //Reselect different square
+                if (targetSquarePiece != null && targetSquarePiece.isWhite == board.whiteOnMove)
+                {
+                    DeselectSquare();
+                    SelectSquare(square);
+                    return;
+                }
+            }
+
+            //Select square
+            if (targetSquarePiece != null && targetSquarePiece.isWhite == board.whiteOnMove)
+            {
+                SelectSquare(square);   
+                return;
+            }
+
+            DeselectSquare();
+            return;
+        }
+
+        private void SelectSquare(GameplaySquare square)
+        {
+            selectedSquare = square;
+            selectedSquare.Select();
+            MarkMoves(board.pieces[square.spot]);
+        }
+
+        private void DeselectSquare()
+        {
+            if (selectedSquare == null) return;
+            selectedSquare.Deselect();
+            selectedSquare = null;
+            UnmarkMoves();
+        }
+
+        private void MarkMoves(Piece selectedPiece)
+        {
+            foreach (Move move in board.possibleMoves)
+            {
+                if (move.startingSpot == selectedPiece.spot)
+                {
+                    GameplaySquare markedSquare = squares[move.targetSpot];
+                    markedSquare.EnableMoveMarker();
+                    markedSquares.Add(markedSquare);
+                }
+            }
+        }
+
+        private void UnmarkMoves()
+        {
+            markedSquares.ForEach(square  => square.DisableMoveMarker());
+            markedSquares.Clear();
+        }
+        private void LoadPosition()
+        {
+            board.pieces.Keys.ToList().ForEach(key => squares[key].SpawnPiece(board.pieces[key]));
+        }
+
+        private void MovePiece(Move move)
+        {
+            GameplayPiece piece = squares[move.startingSpot].GivePiece();
+            squares[move.targetSpot].GetPiece(piece);
         }
 
         private void SpawnBoard()
         {
             board = new Board();
             board.PositionSet += LoadPosition;
+            board.PieceMoved += MovePiece;
 
-            squares = new Dictionary<Spot, GameplaySquare>(64);
             float squareSize = squarePrefab.transform.localScale.x;
             bool isWhite = false;
 
-            for (int file = 1; file<= 8; file++)
+            for (int file = 1; file <= 8; file++)
             {
                 for (int rank = 1; rank <= 8; rank++)
                 {
@@ -48,60 +138,6 @@ namespace Chess.Gameplay
             }
 
             board.LoadPositionFromFEN(fenToLoad);
-        }
-
-        public void ClickSquare(GameplaySquare square)
-        {
-            Piece targetSquarePiece = board.pieces[square.spot];
-
-            if (selectedSquare)
-            {
-                if (targetSquarePiece == null) //Move
-                {
-                    Debug.Log("Move");
-                    DeselectSquare();
-                    return;
-                }
-                
-                if (targetSquarePiece.isWhite != board.whiteOnMove) //Take
-                {
-                    Debug.Log("Take");
-                    DeselectSquare();
-                    return;
-                }
-
-                //Reselect different square
-                DeselectSquare();
-                SelectSquare(square);
-                return;
-            }
-
-            if (targetSquarePiece != null && targetSquarePiece.isWhite == board.whiteOnMove)
-            {
-                SelectSquare(square);   
-                return;
-            }
-
-            DeselectSquare();
-            return;
-        }
-
-        private void SelectSquare(GameplaySquare square)
-        {
-            selectedSquare = square;
-            selectedSquare.Select();
-        }
-
-        private void DeselectSquare()
-        {
-            if (selectedSquare == null) return;
-            selectedSquare.Deselect();
-            selectedSquare = null;
-        }
-
-        private void LoadPosition()
-        {
-            board.pieces.Keys.ToList().ForEach(key => squares[key].SpawnPiece(board.pieces[key]));
         }
     }
 }

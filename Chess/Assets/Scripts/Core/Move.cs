@@ -10,5 +10,7 @@ namespace Chess.Core
             this.startingSpot = startingSpot;
             this.targetSpot = targetSpot;
         }
+
+        public override string ToString() => $"({startingSpot}, {targetSpot})";
     }
 }

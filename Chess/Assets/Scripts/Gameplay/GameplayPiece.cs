@@ -11,5 +11,10 @@ namespace Chess.Gameplay
         {
             GetComponentInChildren<MeshRenderer>().material = isWhite ? whiteMaterial : blackMaterial;
         }
+
+        public void Delete()
+        {
+            Destroy(gameObject);
+        }
     }
 }

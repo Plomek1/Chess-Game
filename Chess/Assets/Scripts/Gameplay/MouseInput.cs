@@ -20,7 +20,7 @@ namespace Chess.Gameplay
         {
             RayForSquare();
 
-            //TODO: PIECE DRAGGING
+            //TODO: Piece dragging
             if (Input.GetMouseButtonDown(0))
                 board.ClickSquare(hoveredSquare);
         }
@@ -48,6 +48,7 @@ namespace Chess.Gameplay
             {
                 highlightedSquare?.Deselect();
                 highlightedSquare = null;
+                hoveredSquare = null;
                 lastHit = null;
             }
         }

@@ -1,3 +1,4 @@
+using System;
 using Unity.Collections;
 using UnityEngine;
 
@@ -60,6 +61,10 @@ namespace Chess.Core
             Debug.LogWarning($"Created spot with invalid notation: {notation}");
         }
 
-        public override string ToString() { return notation; }
+        public static bool operator ==( Spot left, Spot right ) => left.rank == right.rank && left.file == right.file;
+        public static bool operator !=(Spot left, Spot right) => !(left == right);
+        public override bool Equals(object obj) => obj is Spot other && this == (Spot)other;
+        public override int GetHashCode() => HashCode.Combine(rank, file);
+        public override string ToString() => notation;
     }
 }

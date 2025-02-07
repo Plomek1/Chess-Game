@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace Chess.Core
 {
@@ -13,12 +12,14 @@ namespace Chess.Core
             bool firstMove = (isWhite && spot.file == 2) || (!isWhite && spot.file == 7);
 
             //Normal moves
-            AddMove(ref possibleMoves, spot.rank, spot.file + moveDirection, false);
-            if (firstMove) AddMove(ref possibleMoves, spot.rank, spot.file + moveDirection * 2, canTake: false);
+            if (AddMove(ref possibleMoves, spot.rank, spot.file + moveDirection, canTake: false) && firstMove)
+                AddMove(ref possibleMoves, spot.rank, spot.file + moveDirection * 2, canTake: false);
             
             //Takes
-            AddMove(ref possibleMoves, spot.rank, spot.file + 1 + moveDirection + 1, canMoveOnEmptySquare: false);
-            AddMove(ref possibleMoves, spot.rank, spot.file - 1 + moveDirection + 1, canMoveOnEmptySquare: false);
+            AddMove(ref possibleMoves, spot.rank + 1, spot.file + moveDirection, canMoveOnEmptySquare: false);
+            AddMove(ref possibleMoves, spot.rank - 1, spot.file + moveDirection, canMoveOnEmptySquare: false);
+
+            //TODO: En passant
 
             return possibleMoves;
         }

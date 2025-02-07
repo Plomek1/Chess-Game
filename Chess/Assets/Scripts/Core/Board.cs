@@ -20,7 +20,9 @@ namespace Chess.Core
             if (!possibleMoves.Contains(move)) return;
 
             pieces[move.targetSpot] = pieces[move.startingSpot];
+            pieces[move.targetSpot].Move(move.targetSpot);
             pieces[move.startingSpot] = null;
+            whiteOnMove = !whiteOnMove;
             
             FindPossibleMoves();
             PieceMoved?.Invoke(move);

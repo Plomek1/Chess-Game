@@ -10,14 +10,19 @@ namespace Chess.Gameplay
         public Spot spot {  get; private set; }
         public bool isWhite { get; private set; }
 
+        [SerializeField] private GameObject moveMarker;
+
         private GameplayPiece gameplayPiece;
         private MeshRenderer meshRenderer;
+
+        private Vector3 pieceIdlePos;
 
         public void Init(Spot spot, bool isWhite)
         {
             this.spot = spot;
             this.isWhite = isWhite;
-            name = spot.notation;
+            this.name = spot.notation;
+            this.pieceIdlePos = new Vector3(0, transform.localScale.y * 5, 0);
 
             //Setting position
             float size = transform.localScale.x;
@@ -43,10 +48,27 @@ namespace Chess.Gameplay
             else if (piece is Pawn)   gameplayPiece = Instantiate(Assets.Instance.pref_Pawn);
 
             gameplayPiece.transform.SetParent(transform);
-            gameplayPiece.transform.localPosition = new Vector3(0, transform.localScale.y * 5, 0);
+            gameplayPiece.transform.localPosition = pieceIdlePos;
             gameplayPiece.SetColor(piece.isWhite);
         }
+
+        public void GetPiece(GameplayPiece piece)
+        {
+            if (gameplayPiece) gameplayPiece.Delete();
+            gameplayPiece = piece;
+            gameplayPiece.transform.SetParent(transform);
+            gameplayPiece.transform.localPosition = pieceIdlePos;
+        }
+
+        public GameplayPiece GivePiece()
+        {
+            GameplayPiece piece = gameplayPiece;
+            gameplayPiece = null;
+            return piece;
+        }
         
+        //TODO: Piece tweening
+
         public void Deselect()
         {
             squareState = SquareState.IDLE;
@@ -70,6 +92,9 @@ namespace Chess.Gameplay
             squareState = SquareState.SELECTED;
             meshRenderer.material = isWhite ? Assets.Instance.mat_WhiteSquareSelected : Assets.Instance.mat_BlackSquareSelected;
         }
+
+        public void EnableMoveMarker() => moveMarker.SetActive(true);
+        public void DisableMoveMarker() => moveMarker.SetActive(false);
     }
 
     public enum SquareState
