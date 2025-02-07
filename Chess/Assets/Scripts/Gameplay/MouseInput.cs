@@ -22,7 +22,7 @@ namespace Chess.Gameplay
 
             //TODO: PIECE DRAGGING
             if (Input.GetMouseButtonDown(0))
-                board.SelectSquare(hoveredSquare);
+                board.ClickSquare(hoveredSquare);
         }
 
         private void RayForSquare()

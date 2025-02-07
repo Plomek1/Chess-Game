@@ -9,17 +9,34 @@ namespace Chess.Core
     public class Board
     {
         public Action PositionSet;
-        
+        public Action<Move> PieceMoved;
+
         public bool whiteOnMove { get; private set; }
         public Dictionary<Spot, Piece> pieces { get; private set; }
-
+        public List<Move> possibleMoves { get; private set; }
         
-        public Board()
+        public void MakeMove(Move move)
         {
-            pieces = new Dictionary<Spot, Piece>(64);
-            for (int i = 1;  i <= 64; i++) 
-                pieces.Add(new Spot(i), null);
+            if (!possibleMoves.Contains(move)) return;
 
+            pieces[move.targetSpot] = pieces[move.startingSpot];
+            pieces[move.startingSpot] = null;
+            
+            FindPossibleMoves();
+            PieceMoved?.Invoke(move);
+        }
+
+        private void FindPossibleMoves()
+        {
+            possibleMoves.Clear();
+
+            pieces.Keys.ToList().ForEach(square =>
+            {
+                if (pieces[square] == null || pieces[square].isWhite != whiteOnMove) return;
+                possibleMoves.AddRange(pieces[square].FindPossibleMoves());
+            });
+
+            Debug.Log($"Found {possibleMoves.Count} possible moves");
         }
 
         public void LoadPositionFromFEN(string fen)
@@ -38,7 +55,8 @@ namespace Chess.Core
 
             LoadPieces(arguments);
             whiteOnMove = arguments[8] == "w";
-            Debug.Log(whiteOnMove);
+
+            FindPossibleMoves();
             PositionSet?.Invoke();
         }
 
@@ -67,6 +85,15 @@ namespace Chess.Core
                     rank++;
                 }
             }
+        }
+
+        public Board()
+        {
+            pieces = new Dictionary<Spot, Piece>(64);
+            possibleMoves = new List<Move>();
+
+            for (int i = 1; i <= 64; i++)
+                pieces.Add(new Spot(i), null);
         }
     }
 }

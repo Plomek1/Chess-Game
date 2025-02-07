@@ -50,7 +50,7 @@ namespace Chess.Gameplay
             board.LoadPositionFromFEN(fenToLoad);
         }
 
-        public void SelectSquare(GameplaySquare square)
+        public void ClickSquare(GameplaySquare square)
         {
             Piece targetSquarePiece = board.pieces[square.spot];
 
@@ -72,20 +72,24 @@ namespace Chess.Gameplay
 
                 //Reselect different square
                 DeselectSquare();
-                selectedSquare = square;
-                selectedSquare.Select();
+                SelectSquare(square);
                 return;
             }
 
             if (targetSquarePiece != null && targetSquarePiece.isWhite == board.whiteOnMove)
             {
-                selectedSquare = square;
-                selectedSquare.Select();
+                SelectSquare(square);   
                 return;
             }
 
             DeselectSquare();
             return;
+        }
+
+        private void SelectSquare(GameplaySquare square)
+        {
+            selectedSquare = square;
+            selectedSquare.Select();
         }
 
         private void DeselectSquare()
