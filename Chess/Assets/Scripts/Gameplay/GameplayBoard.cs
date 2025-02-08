@@ -30,6 +30,12 @@ namespace Chess.Gameplay
 
         public void ClickSquare(GameplaySquare square)
         {
+            if (!square)
+            {
+                DeselectSquare();
+                return;
+            }
+
             Piece targetSquarePiece = board.pieces[square.spot];
 
             if (selectedSquare)

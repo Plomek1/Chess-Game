@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace Chess.Core
 {
@@ -6,7 +7,14 @@ namespace Chess.Core
     {
         public override List<Move> FindPossibleMoves()
         {
-            return new List<Move>();
+            List<Move> possibleMoves = new List<Move>();
+
+            AddLine(ref possibleMoves, new Vector2Int( 1,  1));
+            AddLine(ref possibleMoves, new Vector2Int( 1, -1));
+            AddLine(ref possibleMoves, new Vector2Int(-1,  1));
+            AddLine(ref possibleMoves, new Vector2Int(-1, -1));
+
+            return possibleMoves;
         }
     }
 }

@@ -1,4 +1,5 @@
 using Chess.Core;
+using DG.Tweening;
 using System;
 using UnityEngine;
 
@@ -11,18 +12,28 @@ namespace Chess.Gameplay
         public bool isWhite { get; private set; }
 
         [SerializeField] private GameObject moveMarker;
+        [SerializeField] private float highlightedPieceY;
+        [SerializeField] private float selectedPieceY;
+        [SerializeField] private float baseTweenSpeed = .1f;
+        [SerializeField] private float pieceMoveSpeed = 2f;
 
         private GameplayPiece gameplayPiece;
         private MeshRenderer meshRenderer;
 
         private Vector3 pieceIdlePos;
+        private Vector3 pieceHighlightedPos;
+        private Vector3 pieceSelectedPos;
+        private bool unbreakableTweenActive;
 
         public void Init(Spot spot, bool isWhite)
         {
             this.spot = spot;
             this.isWhite = isWhite;
             this.name = spot.notation;
-            this.pieceIdlePos = new Vector3(0, transform.localScale.y * 5, 0);
+
+            pieceIdlePos        = new Vector3(0, transform.localScale.y * 5, 0);
+            pieceHighlightedPos = pieceIdlePos + new Vector3(0, highlightedPieceY, 0);
+            pieceSelectedPos    = pieceIdlePos + new Vector3(0, selectedPieceY, 0);
 
             //Setting position
             float size = transform.localScale.x;
@@ -57,7 +68,21 @@ namespace Chess.Gameplay
             if (gameplayPiece) gameplayPiece.Delete();
             gameplayPiece = piece;
             gameplayPiece.transform.SetParent(transform);
-            gameplayPiece.transform.localPosition = pieceIdlePos;
+
+            //Moving piece to square
+            Sequence sequence = DOTween.Sequence();
+
+            unbreakableTweenActive = true;
+            float moveSpeed = baseTweenSpeed / pieceMoveSpeed * piece.transform.localPosition.magnitude;
+            sequence.Append(gameplayPiece.transform.DOLocalMove(pieceSelectedPos, moveSpeed));
+            sequence.Append(gameplayPiece.transform.DOLocalMove(pieceIdlePos, baseTweenSpeed));
+            
+            sequence.OnComplete(() =>
+            {
+                unbreakableTweenActive = false;
+                if (squareState == SquareState.HIGHLIGHTED) TweenPiece(pieceHighlightedPos, baseTweenSpeed);
+            });
+
         }
 
         public GameplayPiece GivePiece()
@@ -67,18 +92,18 @@ namespace Chess.Gameplay
             return piece;
         }
         
-        //TODO: Piece tweening
-
         public void Deselect()
         {
             squareState = SquareState.IDLE;
-            meshRenderer.material = isWhite ? Assets.Instance.mat_WhiteSquareIdle : Assets.Instance.mat_BlackSquareIdle;
+            meshRenderer.material = isWhite ? Assets.Instance.mat_WhiteSquareIdle : Assets.Instance.mat_BlackSquareIdle;        
+            TweenPiece(pieceIdlePos, baseTweenSpeed);
         }
 
         public void Highlight()
         {
             squareState = SquareState.HIGHLIGHTED;
             meshRenderer.material = isWhite ? Assets.Instance.mat_WhiteSquareHighlighted : Assets.Instance.mat_BlackSquareHighlighted;
+            TweenPiece(pieceHighlightedPos, baseTweenSpeed);
         }
 
         public void Select()
@@ -88,13 +113,22 @@ namespace Chess.Gameplay
                 Debug.Log($"Tried to select empty square at: {spot.notation}");
                 return;
             }
-
+            
             squareState = SquareState.SELECTED;
             meshRenderer.material = isWhite ? Assets.Instance.mat_WhiteSquareSelected : Assets.Instance.mat_BlackSquareSelected;
+            TweenPiece(pieceSelectedPos, baseTweenSpeed);
         }
 
         public void EnableMoveMarker() => moveMarker.SetActive(true);
         public void DisableMoveMarker() => moveMarker.SetActive(false);
+    
+        private void TweenPiece(Vector3 targetPos, float duration, bool unbreakable = false)
+        {
+            if (unbreakableTweenActive || !gameplayPiece) return;
+
+            unbreakableTweenActive = unbreakable;
+            gameplayPiece.transform.DOLocalMove(targetPos, duration).OnComplete(() => unbreakableTweenActive = false);
+        }
     }
 
     public enum SquareState

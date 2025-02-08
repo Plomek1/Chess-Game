@@ -7,6 +7,7 @@ namespace Chess.Gameplay
     {
         private GameplaySquare hoveredSquare;
         private GameplaySquare highlightedSquare;
+        private GameplaySquare clickedSquare;
 
         private Transform lastHit;
         private GameplayBoard board;
@@ -20,17 +21,22 @@ namespace Chess.Gameplay
         {
             RayForSquare();
 
-            //TODO: Piece dragging
             if (Input.GetMouseButtonDown(0))
+            {
+                board.ClickSquare(hoveredSquare);
+                if (hoveredSquare != null) clickedSquare = hoveredSquare;
+            }
+
+            if(Input.GetMouseButtonUp(0) && hoveredSquare != clickedSquare) //Check if piece was dragged on different square
                 board.ClickSquare(hoveredSquare);
         }
 
         private void RayForSquare()
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            if (Physics.Raycast(ray, out RaycastHit hitInfo) && hitInfo.transform.TryGetComponent(out GameplaySquare square))
+            if (Physics.Raycast(ray, out RaycastHit hitInfo))
             {
-                if (hitInfo.transform != lastHit)
+                if (hitInfo.transform != lastHit && hitInfo.transform.TryGetComponent(out GameplaySquare square))
                 {
                     hoveredSquare = square;
 
