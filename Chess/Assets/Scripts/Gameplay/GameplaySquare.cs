@@ -45,6 +45,23 @@ namespace Chess.Gameplay
             meshRenderer.material = isWhite ? Assets.Instance.mat_WhiteSquareIdle : Assets.Instance.mat_BlackSquareIdle;
         }
 
+        private void Update()
+        {
+            if (squareState != SquareState.SELECTED) return;
+
+            if (Input.GetMouseButton(0))
+            {
+                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+                if (Physics.Raycast(ray, out RaycastHit hitInfo))
+                {
+                    Vector3 targetPos = hitInfo.point;
+                    targetPos.y = pieceSelectedPos.y * transform.localScale.y;
+                    gameplayPiece.transform.position = Vector3.Lerp(gameplayPiece.transform.position, targetPos, Time.deltaTime * baseTweenSpeed * 2);
+                }
+
+            }
+            //TODO FIX
+        }
         public void SpawnPiece(Piece piece)
         {
             if (gameplayPiece) Destroy(gameObject.gameObject);
@@ -68,21 +85,7 @@ namespace Chess.Gameplay
             if (gameplayPiece) gameplayPiece.Delete();
             gameplayPiece = piece;
             gameplayPiece.transform.SetParent(transform);
-
-            //Moving piece to square
-            Sequence sequence = DOTween.Sequence();
-
-            unbreakableTweenActive = true;
-            float moveSpeed = baseTweenSpeed / pieceMoveSpeed * piece.transform.localPosition.magnitude;
-            sequence.Append(gameplayPiece.transform.DOLocalMove(pieceSelectedPos, moveSpeed));
-            sequence.Append(gameplayPiece.transform.DOLocalMove(pieceIdlePos, baseTweenSpeed));
-            
-            sequence.OnComplete(() =>
-            {
-                unbreakableTweenActive = false;
-                if (squareState == SquareState.HIGHLIGHTED) TweenPiece(pieceHighlightedPos, baseTweenSpeed);
-            });
-
+            ResetPiecePosition();
         }
 
         public GameplayPiece GivePiece()
@@ -95,8 +98,8 @@ namespace Chess.Gameplay
         public void Deselect()
         {
             squareState = SquareState.IDLE;
-            meshRenderer.material = isWhite ? Assets.Instance.mat_WhiteSquareIdle : Assets.Instance.mat_BlackSquareIdle;        
-            TweenPiece(pieceIdlePos, baseTweenSpeed);
+            meshRenderer.material = isWhite ? Assets.Instance.mat_WhiteSquareIdle : Assets.Instance.mat_BlackSquareIdle;
+            ResetPiecePosition();
         }
 
         public void Highlight()
@@ -125,9 +128,28 @@ namespace Chess.Gameplay
         private void TweenPiece(Vector3 targetPos, float duration, bool unbreakable = false)
         {
             if (unbreakableTweenActive || !gameplayPiece) return;
+            gameplayPiece.transform.DOLocalMove(pieceHighlightedPos, baseTweenSpeed);
+        }
 
-            unbreakableTweenActive = unbreakable;
-            gameplayPiece.transform.DOLocalMove(targetPos, duration).OnComplete(() => unbreakableTweenActive = false);
+        private void ResetPiecePosition()
+        {
+            if (!gameplayPiece) return;
+
+            Sequence sequence = DOTween.Sequence();
+            
+            unbreakableTweenActive = true;
+            float moveSpeed = baseTweenSpeed / pieceMoveSpeed * gameplayPiece.transform.localPosition.magnitude;
+            
+            //If piece is lower than selected pos, we dont want it to go higher
+            Vector3 centeredPos = gameplayPiece.transform.localPosition.y > pieceSelectedPos.y ? gameplayPiece.transform.localPosition : pieceSelectedPos;
+            sequence.Append(gameplayPiece.transform.DOLocalMove(centeredPos, moveSpeed));
+            sequence.Append(gameplayPiece.transform.DOLocalMove(pieceIdlePos, baseTweenSpeed));
+
+            sequence.OnComplete(() =>
+            {
+                unbreakableTweenActive = false;
+                if (squareState == SquareState.HIGHLIGHTED) TweenPiece(pieceHighlightedPos, baseTweenSpeed);
+            });
         }
     }
 
