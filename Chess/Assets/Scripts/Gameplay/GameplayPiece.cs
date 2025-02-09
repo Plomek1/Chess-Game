@@ -16,6 +16,7 @@ namespace Chess.Gameplay
 
         public void Delete()
         {
+            DOTween.Kill(transform);
             transform.DOScale(Vector3.zero, deleteDuration).OnComplete(() => Destroy(gameObject));
         }
     }

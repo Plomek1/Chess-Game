@@ -17,13 +17,13 @@ namespace Chess.Core
         {
             if (!NotationParser.ValidateCoordinates(rank, file)) return false;
             Spot targetSpot = new Spot(rank, file);
-            return AddMove(ref possibleMoves, new Spot(rank, file), canMoveOnEmptySquare, canTake);
+            return AddMove(ref possibleMoves, targetSpot, canMoveOnEmptySquare, canTake);
         }
 
         protected bool AddMove(ref List<Move> possibleMoves, Spot targetSpot, bool canMoveOnEmptySquare = true, bool canTake = true)
         {
             //TODO: Prevent moving into check
-            Piece targetSquarePiece = board.pieces[targetSpot];
+            Piece targetSquarePiece = board.GetPiece(targetSpot);
 
             if (targetSquarePiece == null)
             {
@@ -33,7 +33,7 @@ namespace Chess.Core
                     return true;
                 }
             }
-            else if ((canTake && isWhite != targetSquarePiece.isWhite)) //Square has enemy piece
+            else if (canTake && (isWhite != targetSquarePiece.isWhite)) //Square has enemy piece
             {
                 possibleMoves.Add(new Move(spot, targetSpot));
                 return true;
@@ -53,7 +53,7 @@ namespace Chess.Core
                 squareValid = AddMove(ref possibleMoves, squareSpot, canMoveOnEmptySquare, canTake);
 
                 //Checking if piece blocks the way
-                if (squareValid && board.pieces[squareSpot] != null) squareValid = false;
+                if (squareValid && board.GetPiece(squareSpot) != null) squareValid = false;
 
                 if (!NotationParser.ValidateCoordinates(squareSpot.rank + direction.x, squareSpot.file + direction.y)) return;
                 squareSpot = new Spot(squareSpot.rank + direction.x, squareSpot.file + direction.y);

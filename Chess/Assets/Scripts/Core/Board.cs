@@ -11,39 +11,49 @@ namespace Chess.Core
         public Action PositionSet;
         public Action<Move> PieceMoved;
 
-        public bool whiteOnMove { get; private set; }
-        public Dictionary<Spot, Piece> pieces { get; private set; }
-        public List<Move> possibleMoves { get; private set; }
-        
-        public void MakeMove(Move move)
-        {
-            if (!possibleMoves.Contains(move)) return;
+        private Position position;
 
-            pieces[move.targetSpot] = pieces[move.startingSpot];
-            pieces[move.targetSpot].Move(move.targetSpot);
-            pieces[move.startingSpot] = null;
-            whiteOnMove = !whiteOnMove;
-            
-            FindPossibleMoves();
-            PieceMoved?.Invoke(move);
+        public Dictionary<Spot, Piece> GetAllPieces()
+        {
+            if (position == null) return null;
+            return position.pieces;
         }
 
-        private void FindPossibleMoves()
+        public Piece GetPiece(Spot spot)
         {
-            possibleMoves.Clear();
+            if (position == null) return null;
+            return position.pieces[spot];
+        }
 
-            pieces.Keys.ToList().ForEach(square =>
-            {
-                if (pieces[square] == null || pieces[square].isWhite != whiteOnMove) return;
-                possibleMoves.AddRange(pieces[square].FindPossibleMoves());
-            });
+        public List<Move> GetPossibleMoves()
+        {
+            if (position == null) return null;
+            return position.possibleMoves;
+        }
 
-            Debug.Log($"Found {possibleMoves.Count} possible moves");
+        public bool IsWhiteOnMove()
+        {
+            if (position == null) return false;
+            return position.whiteOnMove;
+        }
+
+        public void MakeMove(Move move)
+        {
+            if (position == null) return;
+
+            if (position.MakeMove(move))
+                PieceMoved?.Invoke(move);
+
+            Debug.Log(position.IsCheck(position.whiteOnMove));
+            Debug.Log(position.IsCheck(!position.whiteOnMove));
         }
 
         public void LoadPositionFromFEN(string fen)
         {
-            pieces.Keys.ToList().ForEach(square => pieces[square] = null); //Clearing position
+            //Create 64 empty squares
+            Dictionary<Spot, Piece> pieces = new Dictionary<Spot, Piece>(64);
+            for (int i = 1; i <= 64; i++) 
+                pieces.Add(new Spot(i), null); 
 
             /*
                 0-7: Piece placement
@@ -55,14 +65,15 @@ namespace Chess.Core
             */ 
             string[] arguments = fen.Split('/', ' ');
 
-            LoadPieces(arguments);
-            whiteOnMove = arguments[8] == "w";
+            LoadPiecesFromFEN(ref pieces, arguments);
+            bool whiteOnMove = arguments[8] == "w";
 
-            FindPossibleMoves();
+            position = new Position();
+            position.Init(pieces, whiteOnMove);
             PositionSet?.Invoke();
         }
 
-        private void LoadPieces(string[] arguments )
+        private void LoadPiecesFromFEN(ref Dictionary<Spot, Piece> pieces, string[] arguments)
         {
             for (int file = 1; file <= 8; file++)
             {
@@ -88,14 +99,6 @@ namespace Chess.Core
                 }
             }
         }
-
-        public Board()
-        {
-            pieces = new Dictionary<Spot, Piece>(64);
-            possibleMoves = new List<Move>();
-
-            for (int i = 1; i <= 64; i++)
-                pieces.Add(new Spot(i), null);
-        }
+        public Board() { }
     }
 }

@@ -36,7 +36,7 @@ namespace Chess.Gameplay
                 return;
             }
 
-            Piece targetSquarePiece = board.pieces[square.spot];
+            Piece targetSquarePiece = board.GetPiece(square.spot);
 
             if (selectedSquare)
             {
@@ -56,7 +56,7 @@ namespace Chess.Gameplay
                 }
 
                 //Reselect different square
-                if (targetSquarePiece != null && targetSquarePiece.isWhite == board.whiteOnMove)
+                if (targetSquarePiece != null && targetSquarePiece.isWhite == board.IsWhiteOnMove())
                 {
                     DeselectSquare();
                     SelectSquare(square);
@@ -65,7 +65,7 @@ namespace Chess.Gameplay
             }
 
             //Select square
-            if (targetSquarePiece != null && targetSquarePiece.isWhite == board.whiteOnMove)
+            if (targetSquarePiece != null && targetSquarePiece.isWhite == board.IsWhiteOnMove())
             {
                 SelectSquare(square);   
                 return;
@@ -79,7 +79,7 @@ namespace Chess.Gameplay
         {
             selectedSquare = square;
             selectedSquare.Select();
-            MarkMoves(board.pieces[square.spot]);
+            MarkMoves(board.GetPiece(square.spot));
         }
 
         private void DeselectSquare()
@@ -92,7 +92,7 @@ namespace Chess.Gameplay
 
         private void MarkMoves(Piece selectedPiece)
         {
-            foreach (Move move in board.possibleMoves)
+            foreach (Move move in board.GetPossibleMoves())
             {
                 if (move.startingSpot == selectedPiece.spot)
                 {
@@ -110,7 +110,8 @@ namespace Chess.Gameplay
         }
         private void LoadPosition()
         {
-            board.pieces.Keys.ToList().ForEach(key => squares[key].SpawnPiece(board.pieces[key]));
+            var pieces = board.GetAllPieces();
+            pieces.Keys.ToList().ForEach(key => squares[key].SpawnPiece(pieces[key]));
         }
 
         private void MovePiece(Move move)
