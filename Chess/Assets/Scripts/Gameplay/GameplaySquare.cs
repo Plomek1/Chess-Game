@@ -5,6 +5,7 @@ using UnityEngine;
 
 namespace Chess.Gameplay
 {
+    //This class got a bit messy, might refactor in the future
     public class GameplaySquare : MonoBehaviour
     {
         public SquareState squareState {  get; private set; }
@@ -16,6 +17,7 @@ namespace Chess.Gameplay
         [SerializeField] private float selectedPieceY;
         [SerializeField] private float baseTweenSpeed = .1f;
         [SerializeField] private float pieceMoveSpeed = 2f;
+        [SerializeField] private float timeToStartDragging;
 
         private GameplayPiece gameplayPiece;
         private MeshRenderer meshRenderer;
@@ -23,6 +25,7 @@ namespace Chess.Gameplay
         private Vector3 pieceIdlePos;
         private Vector3 pieceHighlightedPos;
         private Vector3 pieceSelectedPos;
+        private float dragDuration;
         private bool unbreakableTweenActive;
 
         public void Init(Spot spot, bool isWhite)
@@ -51,17 +54,31 @@ namespace Chess.Gameplay
 
             if (Input.GetMouseButton(0))
             {
-                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-                if (Physics.Raycast(ray, out RaycastHit hitInfo))
+                dragDuration += Time.deltaTime;
+                if(dragDuration > timeToStartDragging)
                 {
-                    Vector3 targetPos = hitInfo.point;
-                    targetPos.y = pieceSelectedPos.y * transform.localScale.y;
-                    gameplayPiece.transform.position = Vector3.Lerp(gameplayPiece.transform.position, targetPos, Time.deltaTime * baseTweenSpeed * 2);
-                }
+                    DOTween.Kill(gameplayPiece.transform);
 
+                    //Move piece towards mouse
+                    Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+                    if (Physics.Raycast(ray, out RaycastHit hitInfo))
+                    {
+                        Vector3 targetPos = hitInfo.point;
+                        targetPos.y = pieceSelectedPos.y * transform.localScale.y;
+                        gameplayPiece.transform.position = Vector3.Lerp(gameplayPiece.transform.position, targetPos, Time.deltaTime / baseTweenSpeed * 2);
+                    }
+                }
+                return;
             }
-            //TODO FIX
+
+            if (Input.GetMouseButtonUp(0))
+            {
+                if(gameplayPiece.transform.localPosition !=  pieceSelectedPos)
+                    TweenPiece(pieceSelectedPos, baseTweenSpeed);
+                dragDuration = 0;
+            }
         }
+
         public void SpawnPiece(Piece piece)
         {
             if (gameplayPiece) Destroy(gameObject.gameObject);
@@ -99,6 +116,7 @@ namespace Chess.Gameplay
         {
             squareState = SquareState.IDLE;
             meshRenderer.material = isWhite ? Assets.Instance.mat_WhiteSquareIdle : Assets.Instance.mat_BlackSquareIdle;
+            dragDuration = 0;
             ResetPiecePosition();
         }
 
@@ -128,7 +146,7 @@ namespace Chess.Gameplay
         private void TweenPiece(Vector3 targetPos, float duration, bool unbreakable = false)
         {
             if (unbreakableTweenActive || !gameplayPiece) return;
-            gameplayPiece.transform.DOLocalMove(pieceHighlightedPos, baseTweenSpeed);
+            gameplayPiece.transform.DOLocalMove(targetPos, baseTweenSpeed);
         }
 
         private void ResetPiecePosition()
@@ -139,9 +157,9 @@ namespace Chess.Gameplay
             
             unbreakableTweenActive = true;
             float moveSpeed = baseTweenSpeed / pieceMoveSpeed * gameplayPiece.transform.localPosition.magnitude;
-            
+
             //If piece is lower than selected pos, we dont want it to go higher
-            Vector3 centeredPos = gameplayPiece.transform.localPosition.y > pieceSelectedPos.y ? gameplayPiece.transform.localPosition : pieceSelectedPos;
+            Vector3 centeredPos = new Vector3(pieceSelectedPos.x, Mathf.Min(gameplayPiece.transform.localPosition.y, pieceSelectedPos.y), pieceSelectedPos.z);
             sequence.Append(gameplayPiece.transform.DOLocalMove(centeredPos, moveSpeed));
             sequence.Append(gameplayPiece.transform.DOLocalMove(pieceIdlePos, baseTweenSpeed));
 

@@ -1,9 +1,11 @@
+using DG.Tweening;
 using UnityEngine;
 
 namespace Chess.Gameplay
 {
     public class GameplayPiece : MonoBehaviour
     {
+        [SerializeField] private float deleteDuration;
         [SerializeField] private Material whiteMaterial;
         [SerializeField] private Material blackMaterial;
 
@@ -14,7 +16,7 @@ namespace Chess.Gameplay
 
         public void Delete()
         {
-            Destroy(gameObject);
+            transform.DOScale(Vector3.zero, deleteDuration).OnComplete(() => Destroy(gameObject));
         }
     }
 }

@@ -45,6 +45,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 65d2072db00d66b4e925c8bdaefe8a0b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  deleteDuration: 0.1
   whiteMaterial: {fileID: 2100000, guid: 03c6da1346f92744da41aa7d32cd594f, type: 2}
   blackMaterial: {fileID: 2100000, guid: fb54670ca1912104b928f9e45a4785de, type: 2}
 --- !u!1001 &3137001718007089308

@@ -125,8 +125,9 @@ MonoBehaviour:
   moveMarker: {fileID: 6700729145577456423}
   highlightedPieceY: 0.5
   selectedPieceY: 1.5
-  baseTweenSpeed: 0.1
+  baseTweenSpeed: 0.2
   pieceMoveSpeed: 2
+  timeToStartDragging: 0.1
 --- !u!1 &6700729145577456423
 GameObject:
   m_ObjectHideFlags: 0
