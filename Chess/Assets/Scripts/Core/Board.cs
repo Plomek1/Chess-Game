@@ -44,8 +44,8 @@ namespace Chess.Core
             if (position.MakeMove(move))
                 PieceMoved?.Invoke(move);
 
-            Debug.Log(position.IsCheck(position.whiteOnMove));
-            Debug.Log(position.IsCheck(!position.whiteOnMove));
+            //Debug.Log(position.IsCheck(position.whiteOnMove));
+            //Debug.Log(position.IsCheck(!position.whiteOnMove));
         }
 
         public void LoadPositionFromFEN(string fen)

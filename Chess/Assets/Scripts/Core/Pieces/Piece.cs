@@ -22,7 +22,6 @@ namespace Chess.Core
 
         protected bool AddMove(ref List<Move> possibleMoves, Spot targetSpot, bool canMoveOnEmptySquare = true, bool canTake = true)
         {
-            //TODO: Prevent moving into check
             Piece targetSquarePiece = board.GetPiece(targetSpot);
 
             if (targetSquarePiece == null)
@@ -38,11 +37,11 @@ namespace Chess.Core
                 possibleMoves.Add(new Move(spot, targetSpot));
                 return true;
             }
-                
+
             return false;
         }
 
-        protected void AddLine(ref List<Move> possibleMoves, Vector2Int direction, bool canMoveOnEmptySquare = true, bool canTake = true)
+        protected void AddLine(ref List<Move> possibleMoves, Vector2Int direction, bool canMoveOnEmptySquare = true, bool canTake = true, bool preventSelfCheck = true)
         {
             bool squareValid;
             if (!NotationParser.ValidateCoordinates(spot.rank + direction.x, spot.file + direction.y)) return;

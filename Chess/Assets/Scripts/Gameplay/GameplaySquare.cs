@@ -19,14 +19,15 @@ namespace Chess.Gameplay
         [SerializeField] private float pieceMoveSpeed = 2f;
         [SerializeField] private float timeToStartDragging;
 
-        private GameplayPiece gameplayPiece;
-        private MeshRenderer meshRenderer;
-
         private Vector3 pieceIdlePos;
         private Vector3 pieceHighlightedPos;
         private Vector3 pieceSelectedPos;
         private float dragDuration;
         private bool unbreakableTweenActive;
+
+        private GameplayPiece gameplayPiece;
+        private MeshRenderer meshRenderer;
+
 
         public void Init(Spot spot, bool isWhite)
         {
@@ -102,6 +103,8 @@ namespace Chess.Gameplay
             if (gameplayPiece) gameplayPiece.Delete();
             gameplayPiece = piece;
             gameplayPiece.transform.SetParent(transform);
+
+            DOTween.Kill(gameplayPiece.transform);
             ResetPiecePosition();
         }
 

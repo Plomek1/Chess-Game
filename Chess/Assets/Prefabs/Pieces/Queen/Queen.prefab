@@ -48,6 +48,7 @@ MonoBehaviour:
   deleteDuration: 0.1
   whiteMaterial: {fileID: 2100000, guid: 610c7dcd607896b4db7bc62c8b83bec1, type: 2}
   blackMaterial: {fileID: 2100000, guid: fe9225dc356059943bf97582d453746a, type: 2}
+  wobbleFactor: 400
 --- !u!1001 &2794552572233516699
 PrefabInstance:
   m_ObjectHideFlags: 0
