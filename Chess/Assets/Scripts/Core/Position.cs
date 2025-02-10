@@ -8,13 +8,28 @@ namespace Chess.Core
     {
         public Dictionary<Spot, Piece> pieces { get; private set; }
         public bool whiteOnMove { get; private set; }
+        public CastlingData castlingData { get; private set; }
+        public Spot enPassantSpot; //a1 if there is no en passant move
+
         public List<Move> possibleMoves { get { return whiteOnMove ? whiteMoves : blackMoves; }}
         public Spot whiteKingSpot { get; private set; }
         public Spot blackKingSpot { get; private set; }
 
         private List<Move> whiteMoves;
         private List<Move> blackMoves;
-        
+
+        public void Init(Dictionary<Spot, Piece> pieces, bool whiteOnMove, CastlingData castlingData, Spot enPassantSpot)
+        {
+            this.pieces = pieces;
+            this.whiteOnMove = whiteOnMove;
+            this.castlingData = castlingData;
+            this.enPassantSpot = enPassantSpot;
+
+            whiteMoves = new List<Move>();
+            blackMoves = new List<Move>();
+            UpdatePosition();
+        }
+
         public bool MakeMove(Move move)
         {
             if (!possibleMoves.Contains(move)) return false;
@@ -24,6 +39,19 @@ namespace Chess.Core
             whiteOnMove = !whiteOnMove;
             UpdatePosition();
             return true;
+        }
+        
+        public void MakeMoveRaw(Move move, bool simulation = false)
+        {
+            enPassantSpot = new Spot(1, 1);
+            pieces[move.targetSpot] = pieces[move.startingSpot];
+            pieces[move.targetSpot].Move(move.targetSpot, simulation);
+            pieces[move.startingSpot] = null;
+        }
+
+        public void DeletePiece(Spot spot)
+        {
+            pieces[spot] = null;
         }
 
         public bool IsCheck(bool checkedColor)
@@ -39,16 +67,6 @@ namespace Chess.Core
 
             return false;
         }
-
-        public void Init(Dictionary<Spot, Piece> pieces, bool whiteOnMove, bool preventSelfCheck = true)
-        {
-            this.pieces = pieces;
-            this.whiteOnMove = whiteOnMove;
-            this.whiteMoves = new List<Move>();
-            this.blackMoves = new List<Move>();
-            UpdatePosition();
-        }
-
 
         private void UpdatePosition()
         {
@@ -103,24 +121,27 @@ namespace Chess.Core
             if (pieces[move.startingSpot] is King) kingSpot = move.targetSpot;
             else kingSpot = pieceColor? whiteKingSpot : blackKingSpot;
 
-            MakeMoveRaw(move);
+            MakeMoveRaw(move, true);
 
             bool isCheck = pieces.Where(entry => entry.Value != null && entry.Value.isWhite != pieceColor) //pieces[move.targetSpot] is King is necessary
                            .SelectMany(entry => entry.Value.FindPossibleMoves())                           //for cases where we simulate king moves
                            .Any(move => move.targetSpot == kingSpot);   //because then kingSpot isnt valid
 
-            MakeMoveRaw(new Move(move.targetSpot, move.startingSpot));
+            MakeMoveRaw(new Move(move.targetSpot, move.startingSpot), true);
             pieces[move.targetSpot] = targetPiece;
 
             return isCheck;
         }
 
-        private void MakeMoveRaw(Move move)
-        {
 
-            pieces[move.targetSpot] = pieces[move.startingSpot];
-            pieces[move.targetSpot].Move(move.targetSpot);
-            pieces[move.startingSpot] = null;
-        }
+    }
+
+    public struct CastlingData
+    {
+        public bool kingSideWhite;
+        public bool queenSideWhite;
+
+        public bool kingSideBlack;
+        public bool queenSideBlack;
     }
 }

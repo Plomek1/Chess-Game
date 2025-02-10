@@ -60,7 +60,7 @@ namespace Chess.Core
             while (squareValid);
         }
 
-        public void Move(Spot spot) => this.spot = spot;
+        public virtual void Move(Spot spot, bool simulation = false) => this.spot = spot;
 
         public void Init(Board board, bool isWhite, Spot spot)
         {

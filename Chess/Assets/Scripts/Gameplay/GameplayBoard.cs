@@ -26,8 +26,6 @@ namespace Chess.Gameplay
             SpawnBoard();
         }
 
-
-
         public void ClickSquare(GameplaySquare square)
         {
             if (!square)
@@ -120,11 +118,17 @@ namespace Chess.Gameplay
             squares[move.targetSpot].GetPiece(piece);
         }
 
+        private void DeletePiece(Spot spot)
+        {
+            squares[spot].DeletePiece();
+        }
+
         private void SpawnBoard()
         {
             board = new Board();
             board.PositionSet += LoadPosition;
             board.PieceMoved += MovePiece;
+            board.PieceDeleted += DeletePiece;
 
             float squareSize = squarePrefab.transform.localScale.x;
             bool isWhite = false;

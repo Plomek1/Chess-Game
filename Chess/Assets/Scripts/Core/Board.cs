@@ -10,6 +10,7 @@ namespace Chess.Core
     {
         public Action PositionSet;
         public Action<Move> PieceMoved;
+        public Action<Spot> PieceDeleted;
 
         private Position position;
 
@@ -37,12 +38,43 @@ namespace Chess.Core
             return position.whiteOnMove;
         }
 
+        public Spot GetEnPassantSpot()
+        {
+            if (position == null) return new Spot(1, 1);
+            return position.enPassantSpot;
+        }
+
+        public void SetEnPassantSpot(Spot spot)
+        {
+            if(position == null) return;
+            position.enPassantSpot = spot;
+            Debug.Log(spot);
+        }
+       
+        public void DeletePiece(Spot spot)
+        {
+            if (position == null) return;
+            position.DeletePiece(spot);
+            PieceDeleted?.Invoke(spot);
+        }
+
         public void MakeMove(Move move)
         {
             if (position == null) return;
 
             if (position.MakeMove(move))
                 PieceMoved?.Invoke(move);
+
+            //Debug.Log(position.IsCheck(position.whiteOnMove));
+            //Debug.Log(position.IsCheck(!position.whiteOnMove));
+        }
+
+        public void MakeMoveRaw(Move move)
+        {
+            if (position == null) return;
+
+            position.MakeMoveRaw(move);
+            PieceMoved?.Invoke(move);
 
             //Debug.Log(position.IsCheck(position.whiteOnMove));
             //Debug.Log(position.IsCheck(!position.whiteOnMove));
@@ -56,20 +88,33 @@ namespace Chess.Core
                 pieces.Add(new Spot(i), null); 
 
             /*
-                0-7: Piece placement
-                8:   Active color
-                8:   Castling
-                8:   En passant
-                8:   Halfmove clock
-                8:   Fullmove clock
+                0-7:  Piece placement
+                8:    Active color
+                9:    Castling
+                10:   En passant
+                11:   Halfmove clock
+                12:   Fullmove clock
             */ 
             string[] arguments = fen.Split('/', ' ');
 
             LoadPiecesFromFEN(ref pieces, arguments);
             bool whiteOnMove = arguments[8] == "w";
 
+            //Castling
+            CastlingData castlingData = new CastlingData
+            {
+                kingSideWhite  = arguments[9].Contains('K'),
+                queenSideWhite = arguments[9].Contains('Q'),
+                kingSideBlack  = arguments[9].Contains('k'),
+                queenSideBlack = arguments[9].Contains('q'),
+            };
+
+            //En Passant
+            Spot enPassantSpot = arguments[10] == "-" ? new Spot(1,1) : new Spot(arguments[10]);
+            
+
             position = new Position();
-            position.Init(pieces, whiteOnMove);
+            position.Init(pieces, whiteOnMove, castlingData, enPassantSpot);
             PositionSet?.Invoke();
         }
 

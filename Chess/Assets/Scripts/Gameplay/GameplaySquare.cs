@@ -100,7 +100,7 @@ namespace Chess.Gameplay
 
         public void GetPiece(GameplayPiece piece)
         {
-            if (gameplayPiece) gameplayPiece.Delete();
+            DeletePiece();
             gameplayPiece = piece;
             gameplayPiece.transform.SetParent(transform);
 
@@ -114,7 +114,12 @@ namespace Chess.Gameplay
             gameplayPiece = null;
             return piece;
         }
-        
+
+        public void DeletePiece()
+        {
+            if (gameplayPiece) gameplayPiece.Delete();
+        }
+
         public void Deselect()
         {
             squareState = SquareState.IDLE;
