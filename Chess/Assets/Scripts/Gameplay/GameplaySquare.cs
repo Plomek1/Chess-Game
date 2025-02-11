@@ -82,7 +82,7 @@ namespace Chess.Gameplay
 
         public void SpawnPiece(Piece piece)
         {
-            if (gameplayPiece) Destroy(gameObject.gameObject);
+            if (gameplayPiece) Destroy(gameplayPiece.gameObject);
             if (piece == null) return;
 
             //Find out what type of the piece we need to spawn
@@ -118,6 +118,7 @@ namespace Chess.Gameplay
         public void DeletePiece()
         {
             if (gameplayPiece) gameplayPiece.Delete();
+            gameplayPiece = null;
         }
 
         public void Deselect()

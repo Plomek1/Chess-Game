@@ -12,16 +12,13 @@ namespace Chess.Core
             int moveDirection = isWhite ? 1 : -1;
             bool firstMove = (isWhite && spot.file == 2) || (!isWhite && spot.file == 7);
 
-            //Prevents king from moving under pawn's take range
-            bool isCalculatingThreat = board.IsWhiteOnMove() != isWhite;
-
             //Normal moves
-            if (AddMove(ref possibleMoves, spot.rank, spot.file + moveDirection, canMoveOnEmptySquare: !isCalculatingThreat, canTake: false) && firstMove)
+            if (AddMove(ref possibleMoves, spot.rank, spot.file + moveDirection, canTake: false) && firstMove)
                 AddMove(ref possibleMoves, spot.rank, spot.file + moveDirection * 2, canTake: false);
 
             //Takes
-            AddMove(ref possibleMoves, spot.rank + 1, spot.file + moveDirection, canMoveOnEmptySquare: isCalculatingThreat);
-            AddMove(ref possibleMoves, spot.rank - 1, spot.file + moveDirection, canMoveOnEmptySquare: isCalculatingThreat);
+            AddMove(ref possibleMoves, spot.rank + 1, spot.file + moveDirection, canMoveOnEmptySquare: false);
+            AddMove(ref possibleMoves, spot.rank - 1, spot.file + moveDirection, canMoveOnEmptySquare: false);
 
             Spot enPassantSpot = board.GetEnPassantSpot();
 
@@ -53,6 +50,9 @@ namespace Chess.Core
 
                 board.ResetEnPassantSpot();
             }
+
+            if (!simulation && (spot.file == 1 || spot.file == 8))
+                board.PromptPromotion(spot);
 
             this.spot = spot;
         }

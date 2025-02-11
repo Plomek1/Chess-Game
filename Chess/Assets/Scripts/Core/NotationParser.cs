@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using UnityEngine;
+
 namespace Chess.Core
 {
     public static class NotationParser

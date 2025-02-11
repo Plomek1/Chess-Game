@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 namespace Chess.Gameplay
 {
@@ -12,7 +13,7 @@ namespace Chess.Gameplay
         private Transform lastHit;
         private GameplayBoard board;
 
-        private void Start()
+        private void Start() 
         {
             board = GetComponent<GameplayBoard>();
         }
@@ -33,30 +34,39 @@ namespace Chess.Gameplay
 
         private void RayForSquare()
         {
+            if (IsMouseOverUI()) return;
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             if (Physics.Raycast(ray, out RaycastHit hitInfo))
             {
-                if (hitInfo.transform != lastHit && hitInfo.transform.TryGetComponent(out GameplaySquare square))
+                if (hitInfo.transform != lastHit)
                 {
-                    hoveredSquare = square;
+                    if (hitInfo.transform.TryGetComponent(out GameplaySquare square))
+                    {
+                        hoveredSquare = square;
 
-                    if(hoveredSquare.squareState == SquareState.SELECTED)
+                        if(hoveredSquare.squareState == SquareState.SELECTED)
+                        {
+                            highlightedSquare?.Deselect();
+                            highlightedSquare = null;
+                        }
+                        else HighlightHoveredSquare();
+                    }
+                    else
                     {
                         highlightedSquare?.Deselect();
                         highlightedSquare = null;
+                        hoveredSquare = null;
+                        lastHit = null;
                     }
-                    else HighlightHoveredSquare();
 
                     lastHit = hitInfo.transform;
                 }
             }
-            else
-            {
-                highlightedSquare?.Deselect();
-                highlightedSquare = null;
-                hoveredSquare = null;
-                lastHit = null;
-            }
+        }
+
+        private bool IsMouseOverUI()
+        {
+            return EventSystem.current.IsPointerOverGameObject();
         }
 
         private void HighlightHoveredSquare()

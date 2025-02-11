@@ -25,8 +25,6 @@ namespace Chess.Core
             this.castlingData = castlingData;
             this.enPassantSpot = enPassantSpot;
 
-            castlingData.Keys.ToList().ForEach(key => Debug.Log($"{key} - {castlingData[key]}"));
-
             whiteMoves = new List<Move>();
             blackMoves = new List<Move>();
             UpdatePosition();
@@ -70,7 +68,7 @@ namespace Chess.Core
             return false;
         }
 
-        private void UpdatePosition()
+        public void UpdatePosition()
         {
             whiteMoves.Clear();
             blackMoves.Clear();

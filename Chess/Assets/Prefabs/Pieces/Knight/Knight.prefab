@@ -45,9 +45,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 65d2072db00d66b4e925c8bdaefe8a0b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deleteDuration: 0.1
+  deleteDuration: 0.5
   whiteMaterial: {fileID: 2100000, guid: c78849ee8011ad9478d9eefbd90efd24, type: 2}
   blackMaterial: {fileID: 2100000, guid: 4e74cc2ad9614bc48b185563e45b6e4e, type: 2}
+  wobbleFactor: 500
 --- !u!1001 &5909597085044345330
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -1,13 +1,15 @@
-using Chess.Core;
+using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using UnityEngine;
+using Chess.Core;
 
 namespace Chess.Gameplay
 {
     public class GameplayBoard : MonoBehaviour
     {
+        public Action PromptPromotion;
+
         [TextArea(1, 2)] [SerializeField] private string fenToLoad;
         [SerializeField] private GameplaySquare squarePrefab;
 
@@ -18,6 +20,7 @@ namespace Chess.Gameplay
         private List<GameplaySquare> markedSquares;
 
         private GameplaySquare selectedSquare;
+        private Spot promotionSquare;
 
         private void Start()
         {
@@ -73,6 +76,19 @@ namespace Chess.Gameplay
             return;
         }
 
+        public void PromotePiece(Type pieceType)
+        {
+            board.PromotePiece(pieceType);
+            squares[promotionSquare].DeletePiece();
+            squares[promotionSquare].SpawnPiece(board.GetPiece(promotionSquare));
+        }
+
+        private void PromptPromotionDelegate(Spot spot)
+        {
+            promotionSquare = spot;
+            PromptPromotion?.Invoke();
+        }
+
         private void SelectSquare(GameplaySquare square)
         {
             selectedSquare = square;
@@ -125,7 +141,7 @@ namespace Chess.Gameplay
 
         private void SpawnBoard()
         {
-            board = new Board();
+            board = new Board(PromptPromotionDelegate);
             board.PositionSet += LoadPosition;
             board.PieceMoved += MovePiece;
             board.PieceDeleted += DeletePiece;

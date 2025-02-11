@@ -9,9 +9,18 @@ namespace Chess.Core
     public class Board
     {
         public Action PositionSet;
+
+        public Action Checkmate;
+        public Action Stalemate;
+        
         public Action<Move> PieceMoved;
         public Action<Spot> PieceDeleted;
+        public Action<Spot> PiecePromoted;
 
+        public delegate void PromotionPrompt(Spot spot);
+        private PromotionPrompt promotionPrompt;
+
+        private Spot spotToPromote;
         private Position position;
 
         public Dictionary<Spot, Piece> GetAllPieces()
@@ -103,6 +112,23 @@ namespace Chess.Core
             return position.IsSquareAttacked(spot, attackerColor);
         }
 
+        public void PromptPromotion(Spot spot)
+        {
+            spotToPromote = spot;
+            promotionPrompt(spotToPromote);
+        }
+
+        public void PromotePiece(Type pieceType)
+        {
+            if (position == null) return;
+            Piece piece = (Piece)Activator.CreateInstance(pieceType);
+            piece.Init(this, position.pieces[spotToPromote].isWhite, spotToPromote);
+            position.pieces[spotToPromote] = piece;
+            position.UpdatePosition();
+
+            PiecePromoted?.Invoke(spotToPromote);
+        }
+
         public void LoadPositionFromFEN(string fen)
         {
             //Create 64 empty squares
@@ -167,6 +193,9 @@ namespace Chess.Core
                 }
             }
         }
-        public Board() { }
+        public Board(PromotionPrompt promotionPrompt) 
+        {
+            this.promotionPrompt = promotionPrompt;
+        }
     }
 }
