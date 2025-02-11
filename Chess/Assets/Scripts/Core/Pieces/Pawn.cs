@@ -20,42 +20,43 @@ namespace Chess.Core
             AddMove(ref possibleMoves, spot.rank + 1, spot.file + moveDirection, canMoveOnEmptySquare: false);
             AddMove(ref possibleMoves, spot.rank - 1, spot.file + moveDirection, canMoveOnEmptySquare: false);
 
-
-
             Spot enPassantSpot = board.GetEnPassantSpot();
-            if (enPassantSpot != new Spot(1, 1))
+
+            if (enPassantSpot != new Spot(1, 1) 
+                && Mathf.Abs(spot.rank - enPassantSpot.rank) == 1 && spot.file + moveDirection == enPassantSpot.file) //Make sure pawn is in the right position
             {
-                if(AddMove(ref possibleMoves, enPassantSpot)) //TODO FIX
-                Debug.Log("nigga");
+                AddMove(ref possibleMoves, enPassantSpot);
+                    //Debug.Log(possibleMoves.Count);
+
             }
 
             return possibleMoves;
         }
 
-        public override void Move(Spot spot, bool simulation = false)
+        public override void Move(Spot spot, bool overrideEnPassant = true)
         {
-            if (simulation)
+            if (!overrideEnPassant)
             {
-                base.Move(spot, simulation);
+                base.Move(spot, overrideEnPassant);
                 return;
             }
-
-            //Add en passant
+            
             int moveDirection = isWhite ? 1 : -1;
-            if (Mathf.Abs(spot.file - this.spot.file) == 2) //En passant
+            bool doublePawnMove = Mathf.Abs(spot.file - this.spot.file) == 2;
+            
+            if (doublePawnMove)
             {
                 Spot enPassantSpot = new Spot(this.spot.rank, this.spot.file + moveDirection);
                 board.SetEnPassantSpot(enPassantSpot);
             }
-            //Take en passant pawn
-            else
+            else //Check if player just did en passant
             {
                 Spot enPassantSpot = board.GetEnPassantSpot();
                 if (enPassantSpot != new Spot(1, 1) && enPassantSpot == spot)
                     board.DeletePiece(new Spot(enPassantSpot.rank, enPassantSpot.file - moveDirection));
             }
 
-            base.Move(spot);
+            base.Move(spot, !doublePawnMove);
         }
     }
 }

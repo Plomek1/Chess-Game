@@ -41,11 +41,10 @@ namespace Chess.Core
             return true;
         }
         
-        public void MakeMoveRaw(Move move, bool simulation = false)
+        public void MakeMoveRaw(Move move, bool resetEnPassant = true)
         {
-            enPassantSpot = new Spot(1, 1);
             pieces[move.targetSpot] = pieces[move.startingSpot];
-            pieces[move.targetSpot].Move(move.targetSpot, simulation);
+            pieces[move.targetSpot].Move(move.targetSpot, resetEnPassant);
             pieces[move.startingSpot] = null;
         }
 
@@ -121,19 +120,34 @@ namespace Chess.Core
             if (pieces[move.startingSpot] is King) kingSpot = move.targetSpot;
             else kingSpot = pieceColor? whiteKingSpot : blackKingSpot;
 
-            MakeMoveRaw(move, true);
 
-            bool isCheck = pieces.Where(entry => entry.Value != null && entry.Value.isWhite != pieceColor) //pieces[move.targetSpot] is King is necessary
-                           .SelectMany(entry => entry.Value.FindPossibleMoves())                           //for cases where we simulate king moves
-                           .Any(move => move.targetSpot == kingSpot);   //because then kingSpot isnt valid
+            //Saving en passant spot
+            Spot enPassantSpot = this.enPassantSpot;
+            Spot enPassantPieceSpot = new Spot(enPassantSpot.rank, enPassantSpot.file == 3 ? 4 : 5);
+            Piece enPassantPiece = null;
+            bool enPassantSpotValid = enPassantSpot != new Spot(1, 1);
 
-            MakeMoveRaw(new Move(move.targetSpot, move.startingSpot), true);
+            if (enPassantSpotValid)
+                enPassantPiece = pieces[enPassantPieceSpot];
+
+            MakeMoveRaw(move);
+
+            bool isCheck = pieces.Where(entry => entry.Value != null && entry.Value.isWhite != pieceColor)
+                           .SelectMany(entry => entry.Value.FindPossibleMoves())
+                           .Any(move => move.targetSpot == kingSpot);
+
+            MakeMoveRaw(new Move(move.targetSpot, move.startingSpot));
             pieces[move.targetSpot] = targetPiece;
+
+            //Loading en passant spot
+            if(enPassantSpotValid)
+            {
+                this.enPassantSpot = enPassantSpot;
+                pieces[enPassantPieceSpot] = enPassantPiece;
+            }
 
             return isCheck;
         }
-
-
     }
 
     public struct CastlingData

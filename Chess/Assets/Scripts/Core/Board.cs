@@ -48,7 +48,6 @@ namespace Chess.Core
         {
             if(position == null) return;
             position.enPassantSpot = spot;
-            Debug.Log(spot);
         }
        
         public void DeletePiece(Spot spot)

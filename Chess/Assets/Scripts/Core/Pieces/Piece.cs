@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnityEditor.Build;
 using UnityEngine;
 
 namespace Chess.Core
@@ -60,7 +61,11 @@ namespace Chess.Core
             while (squareValid);
         }
 
-        public virtual void Move(Spot spot, bool simulation = false) => this.spot = spot;
+        public virtual void Move(Spot spot, bool resetEnPassant = true) 
+        {
+            this.spot = spot;
+            if (resetEnPassant) board.SetEnPassantSpot(new Spot(1, 1));
+        }
 
         public void Init(Board board, bool isWhite, Spot spot)
         {
