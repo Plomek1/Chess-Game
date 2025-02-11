@@ -6,7 +6,7 @@ namespace Chess.Core
 {
     public abstract class Piece
     {
-        public Spot spot { get; private set; }
+        public Spot spot { get; protected set; }
         public bool isWhite {  get; private set; }
 
         protected Board board;
@@ -61,11 +61,13 @@ namespace Chess.Core
             while (squareValid);
         }
 
-        public virtual void Move(Spot spot, bool resetEnPassant = true) 
+        public virtual void Move(Spot spot, bool simulation = false) 
         {
             this.spot = spot;
-            if (resetEnPassant) board.SetEnPassantSpot(new Spot(1, 1));
+            board.ResetEnPassantSpot();
         }
+
+        public virtual void OnDelete(bool simulation = false) { }
 
         public void Init(Board board, bool isWhite, Spot spot)
         {

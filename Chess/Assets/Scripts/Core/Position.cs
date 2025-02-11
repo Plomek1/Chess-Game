@@ -8,7 +8,7 @@ namespace Chess.Core
     {
         public Dictionary<Spot, Piece> pieces { get; private set; }
         public bool whiteOnMove { get; private set; }
-        public CastlingData castlingData { get; private set; }
+        public Dictionary<CastleType, bool> castlingData { get; private set; }
         public Spot enPassantSpot; //a1 if there is no en passant move
 
         public List<Move> possibleMoves { get { return whiteOnMove ? whiteMoves : blackMoves; }}
@@ -18,12 +18,14 @@ namespace Chess.Core
         private List<Move> whiteMoves;
         private List<Move> blackMoves;
 
-        public void Init(Dictionary<Spot, Piece> pieces, bool whiteOnMove, CastlingData castlingData, Spot enPassantSpot)
+        public void Init(Dictionary<Spot, Piece> pieces, bool whiteOnMove, Dictionary<CastleType, bool> castlingData, Spot enPassantSpot)
         {
             this.pieces = pieces;
             this.whiteOnMove = whiteOnMove;
             this.castlingData = castlingData;
             this.enPassantSpot = enPassantSpot;
+
+            castlingData.Keys.ToList().ForEach(key => Debug.Log($"{key} - {castlingData[key]}"));
 
             whiteMoves = new List<Move>();
             blackMoves = new List<Move>();
@@ -41,10 +43,11 @@ namespace Chess.Core
             return true;
         }
         
-        public void MakeMoveRaw(Move move, bool resetEnPassant = true)
+        public void MakeMoveRaw(Move move, bool simulation = false)
         {
+            pieces[move.targetSpot]?.OnDelete(simulation);
             pieces[move.targetSpot] = pieces[move.startingSpot];
-            pieces[move.targetSpot].Move(move.targetSpot, resetEnPassant);
+            pieces[move.targetSpot].Move(move.targetSpot, simulation);
             pieces[move.startingSpot] = null;
         }
 
@@ -84,65 +87,58 @@ namespace Chess.Core
                 }
 
                 //Update possible moves
-
                 List<Move> possiblePieceMoves = pieces[spot].FindPossibleMoves();
-
-                //Remove moves resulting in self check
-                if (pieces[spot].isWhite == whiteOnMove)
-                {
-                    for (int i = 0; i < possiblePieceMoves.Count; i++)
-                    {
-                        if (ScanMoveForSelfCheck(possiblePieceMoves[i]))
-                        {
-                            Debug.Log(possiblePieceMoves[i]);
-                            possiblePieceMoves.RemoveAt(i);
-                            i--;
-                        }
-                    }
-                }
 
                 if (pieces[spot].isWhite)
                     whiteMoves.AddRange(possiblePieceMoves);
                 else
                     blackMoves.AddRange(possiblePieceMoves);
-
             });
+
+            //Prevent self check
+            for (int i = 0; i < possibleMoves.Count; i++)
+            {
+                if (ScanMoveForSelfCheck(possibleMoves[i]))
+                {
+                    possibleMoves.RemoveAt(i);
+                    i--;
+                }
+            }
 
             //Debug.Log($"Found {possibleMoves.Count} possible moves");
         }
 
         private bool ScanMoveForSelfCheck(Move move)
         {
+
             Piece targetPiece = pieces[move.targetSpot];
             bool pieceColor = pieces[move.startingSpot].isWhite;
 
-            Spot kingSpot;
+            Spot kingSpot = pieceColor ? whiteKingSpot : blackKingSpot;
             if (pieces[move.startingSpot] is King) kingSpot = move.targetSpot;
-            else kingSpot = pieceColor? whiteKingSpot : blackKingSpot;
-
 
             //Saving en passant spot
-            Spot enPassantSpot = this.enPassantSpot;
-            Spot enPassantPieceSpot = new Spot(enPassantSpot.rank, enPassantSpot.file == 3 ? 4 : 5);
+            Spot enPassantSpotCopy = this.enPassantSpot;
+            Spot enPassantPieceSpot = new Spot(enPassantSpotCopy.rank, enPassantSpotCopy.file == 3 ? 4 : 5);
             Piece enPassantPiece = null;
-            bool enPassantSpotValid = enPassantSpot != new Spot(1, 1);
+            bool enPassantSpotValid = enPassantSpotCopy != new Spot(1, 1);
 
             if (enPassantSpotValid)
                 enPassantPiece = pieces[enPassantPieceSpot];
 
-            MakeMoveRaw(move);
+            MakeMoveRaw(move, true);
 
             bool isCheck = pieces.Where(entry => entry.Value != null && entry.Value.isWhite != pieceColor)
                            .SelectMany(entry => entry.Value.FindPossibleMoves())
                            .Any(move => move.targetSpot == kingSpot);
 
-            MakeMoveRaw(new Move(move.targetSpot, move.startingSpot));
+            MakeMoveRaw(new Move(move.targetSpot, move.startingSpot), true);
             pieces[move.targetSpot] = targetPiece;
 
             //Loading en passant spot
             if(enPassantSpotValid)
             {
-                this.enPassantSpot = enPassantSpot;
+                this.enPassantSpot = enPassantSpotCopy;
                 pieces[enPassantPieceSpot] = enPassantPiece;
             }
 
@@ -150,12 +146,12 @@ namespace Chess.Core
         }
     }
 
-    public struct CastlingData
+    public enum CastleType
     {
-        public bool kingSideWhite;
-        public bool queenSideWhite;
+        WHITE_KING,
+        WHITE_QUEEN,
 
-        public bool kingSideBlack;
-        public bool queenSideBlack;
+        BLACK_KING,
+        BLACK_QUEEN
     }
 }

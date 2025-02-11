@@ -49,7 +49,13 @@ namespace Chess.Core
             if(position == null) return;
             position.enPassantSpot = spot;
         }
-       
+
+        public void ResetEnPassantSpot()
+        {
+            if (position == null) return;
+            position.enPassantSpot = new Spot(1, 1);
+        }
+
         public void DeletePiece(Spot spot)
         {
             if (position == null) return;
@@ -79,6 +85,24 @@ namespace Chess.Core
             //Debug.Log(position.IsCheck(!position.whiteOnMove));
         }
 
+        public bool CanCastle(CastleType type)
+        {
+            if (position == null) return false;
+            return position.castlingData[type];
+        }
+
+        public void DisableCastle(CastleType type)
+        {
+            if (position == null) return;
+            position.castlingData[type] = false;
+        }
+
+        public bool IsSquareAttacked(Spot spot, bool attackerColor)
+        {
+            if (position == null) return false;
+            return position.IsSquareAttacked(spot, attackerColor);
+        }
+
         public void LoadPositionFromFEN(string fen)
         {
             //Create 64 empty squares
@@ -100,12 +124,12 @@ namespace Chess.Core
             bool whiteOnMove = arguments[8] == "w";
 
             //Castling
-            CastlingData castlingData = new CastlingData
+            Dictionary<CastleType, bool> castlingData = new Dictionary<CastleType, bool>(4)
             {
-                kingSideWhite  = arguments[9].Contains('K'),
-                queenSideWhite = arguments[9].Contains('Q'),
-                kingSideBlack  = arguments[9].Contains('k'),
-                queenSideBlack = arguments[9].Contains('q'),
+                { CastleType.WHITE_KING,  arguments[9].Contains('K') },
+                { CastleType.WHITE_QUEEN, arguments[9].Contains('Q') },
+                { CastleType.BLACK_KING,  arguments[9].Contains('k') },
+                { CastleType.BLACK_QUEEN, arguments[9].Contains('q') },
             };
 
             //En Passant
