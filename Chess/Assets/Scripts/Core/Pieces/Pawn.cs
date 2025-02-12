@@ -51,8 +51,12 @@ namespace Chess.Core
                 board.ResetEnPassantSpot();
             }
 
-            if (!simulation && (spot.file == 1 || spot.file == 8))
-                board.PromptPromotion(spot);
+            if (!simulation)
+            {
+                if(spot.file == 1 || spot.file == 8)
+                    board.PromptPromotion(spot);
+                board.ResetHalfmoveClock();
+            }
 
             this.spot = spot;
         }

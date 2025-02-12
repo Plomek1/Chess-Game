@@ -9,6 +9,8 @@ namespace Chess.Gameplay
     public class GameplayBoard : MonoBehaviour
     {
         public Action PromptPromotion;
+        public Action<bool, GameEndCondition> Win;
+        public Action<GameEndCondition> Draw;
 
         [TextArea(1, 2)] [SerializeField] private string fenToLoad;
         [SerializeField] private GameplaySquare squarePrefab;
@@ -83,6 +85,11 @@ namespace Chess.Gameplay
             squares[promotionSquare].SpawnPiece(board.GetPiece(promotionSquare));
         }
 
+        public void ReloadGame()
+        {
+            board.LoadPositionFromFEN(fenToLoad);
+        }
+
         private void PromptPromotionDelegate(Spot spot)
         {
             promotionSquare = spot;
@@ -139,12 +146,25 @@ namespace Chess.Gameplay
             squares[spot].DeletePiece();
         }
 
+        private void WinDelegate(bool winner, GameEndCondition condition)
+        {
+            Win?.Invoke(winner, condition);
+        }
+
+        private void DrawDelegate(GameEndCondition condition)
+        {
+            Draw?.Invoke(condition);
+        }
+
         private void SpawnBoard()
         {
             board = new Board(PromptPromotionDelegate);
             board.PositionSet += LoadPosition;
             board.PieceMoved += MovePiece;
             board.PieceDeleted += DeletePiece;
+
+            board.Win += Win;
+            board.Draw += Draw;
 
             float squareSize = squarePrefab.transform.localScale.x;
             bool isWhite = false;

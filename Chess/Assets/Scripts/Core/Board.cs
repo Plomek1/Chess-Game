@@ -10,8 +10,8 @@ namespace Chess.Core
     {
         public Action PositionSet;
 
-        public Action Checkmate;
-        public Action Stalemate;
+        public Action<bool, GameEndCondition> Win;
+        public Action<GameEndCondition> Draw;
         
         public Action<Move> PieceMoved;
         public Action<Spot> PieceDeleted;
@@ -79,8 +79,16 @@ namespace Chess.Core
             if (position.MakeMove(move))
                 PieceMoved?.Invoke(move);
 
-            //Debug.Log(position.IsCheck(position.whiteOnMove));
-            //Debug.Log(position.IsCheck(!position.whiteOnMove));
+            //Game over conditions
+            if (position.possibleMoves.Count == 0)
+            {
+                if (position.IsCheck(position.whiteOnMove))
+                    Win.Invoke(!position.whiteOnMove, GameEndCondition.Checkmate);
+                else
+                    Draw?.Invoke(GameEndCondition.Stalemate);
+            }
+            else if (position.halfmoveClock == 50)
+                Draw?.Invoke(GameEndCondition.Move50);
         }
 
         public void MakeMoveRaw(Move move)
@@ -89,9 +97,6 @@ namespace Chess.Core
 
             position.MakeMoveRaw(move);
             PieceMoved?.Invoke(move);
-
-            //Debug.Log(position.IsCheck(position.whiteOnMove));
-            //Debug.Log(position.IsCheck(!position.whiteOnMove));
         }
 
         public bool CanCastle(CastleType type)
@@ -116,6 +121,12 @@ namespace Chess.Core
         {
             spotToPromote = spot;
             promotionPrompt(spotToPromote);
+        }
+
+        public void ResetHalfmoveClock()
+        {
+            if (position == null) return;
+            position.halfmoveClock = 0;
         }
 
         public void PromotePiece(Type pieceType)
@@ -161,9 +172,11 @@ namespace Chess.Core
             //En Passant
             Spot enPassantSpot = arguments[10] == "-" ? new Spot(1,1) : new Spot(arguments[10]);
             
+            int halfmoveClock = int.Parse(arguments[11]);
+            int fullmoveClock = int.Parse(arguments[12]);
 
             position = new Position();
-            position.Init(pieces, whiteOnMove, castlingData, enPassantSpot);
+            position.Init(pieces, whiteOnMove, castlingData, enPassantSpot, halfmoveClock, fullmoveClock);
             PositionSet?.Invoke();
         }
 
@@ -197,5 +210,12 @@ namespace Chess.Core
         {
             this.promotionPrompt = promotionPrompt;
         }
+    }
+
+    public enum GameEndCondition
+    {
+        Checkmate,
+        Stalemate,
+        Move50
     }
 }

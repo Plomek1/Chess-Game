@@ -14,16 +14,20 @@ namespace Chess.Core
         public List<Move> possibleMoves { get { return whiteOnMove ? whiteMoves : blackMoves; }}
         public Spot whiteKingSpot { get; private set; }
         public Spot blackKingSpot { get; private set; }
+        public int halfmoveClock;
+        public int fullmoveClock;
 
         private List<Move> whiteMoves;
         private List<Move> blackMoves;
 
-        public void Init(Dictionary<Spot, Piece> pieces, bool whiteOnMove, Dictionary<CastleType, bool> castlingData, Spot enPassantSpot)
+        public void Init(Dictionary<Spot, Piece> pieces, bool whiteOnMove, Dictionary<CastleType, bool> castlingData, Spot enPassantSpot, int halfmoveClock, int fullmoveClock)
         {
             this.pieces = pieces;
             this.whiteOnMove = whiteOnMove;
             this.castlingData = castlingData;
             this.enPassantSpot = enPassantSpot;
+            this.halfmoveClock = halfmoveClock;
+            this.fullmoveClock = fullmoveClock;
 
             whiteMoves = new List<Move>();
             blackMoves = new List<Move>();
@@ -43,6 +47,15 @@ namespace Chess.Core
         
         public void MakeMoveRaw(Move move, bool simulation = false)
         {
+            if (!simulation)
+            {
+                if (pieces[move.targetSpot] != null)
+                    halfmoveClock = 0;
+                else
+                    halfmoveClock++;
+                
+                fullmoveClock++;
+            }
             pieces[move.targetSpot]?.OnDelete(simulation);
             pieces[move.targetSpot] = pieces[move.startingSpot];
             pieces[move.targetSpot].Move(move.targetSpot, simulation);
