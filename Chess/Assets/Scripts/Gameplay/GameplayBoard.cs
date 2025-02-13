@@ -12,10 +12,10 @@ namespace Chess.Gameplay
         public Action<bool, GameEndCondition> Win;
         public Action<GameEndCondition> Draw;
 
+        public static string fenInput; //Workaround since its the only thing that needs to be stored
+
         [TextArea(1, 2)] [SerializeField] private string fenToLoad;
         [SerializeField] private GameplaySquare squarePrefab;
-
-        private const string FEN_DEFAULT = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
         
         private Board board;
         private Dictionary<Spot, GameplaySquare> squares;
@@ -28,6 +28,7 @@ namespace Chess.Gameplay
         {
             squares = new Dictionary<Spot, GameplaySquare>(64);
             markedSquares = new List<GameplaySquare>();
+            if (fenInput?.Length > 0) fenToLoad = fenInput; 
             SpawnBoard();
         }
 

@@ -1,6 +1,7 @@
 using UnityEngine;
 using Chess.Core;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 namespace Chess.Gameplay.UI
 {
@@ -27,7 +28,7 @@ namespace Chess.Gameplay.UI
 
         public void MainMenu()
         {
-            Debug.Log("MAIN MENU OPEN");
+            SceneManager.LoadScene(0);
             rootTransform.gameObject.SetActive(false);
         }
 

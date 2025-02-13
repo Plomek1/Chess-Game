@@ -87,7 +87,7 @@ namespace Chess.Core
                 else
                     Draw?.Invoke(GameEndCondition.Stalemate);
             }
-            else if (position.halfmoveClock == 50)
+            else if (position.halfmoveClock >= 50)
                 Draw?.Invoke(GameEndCondition.Move50);
         }
 
